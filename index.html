@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detektif Berita: Misi 5W + 1H</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serifNews: ['"Cinzel"', 'serif'],
+            typewriter: ['"Special Elite"', 'monospace']
+          },
+          colors: {
+            detective: {
+              paper: '#F4ECD8',
+              paperDark: '#E6D7B9',
+              ink: '#1E232A',
+              crimson: '#9E2A2B',
+              amber: '#D97706',
+              leather: '#3A2618',
+              slate: '#2C3539'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #171B20;
+      color: #E2E8F0;
+      user-select: none;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.15);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #78350f;
+      border-radius: 4px;
+    }
+    .paper-texture {
+      background-color: #F8F1DF;
+      background-image: radial-gradient(#d3c5a3 0.75px, transparent 0.75px), radial-gradient(#d3c5a3 0.75px, #F8F1DF 0.75px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+    }
+    .pin-shadow {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+    .stamp-badge {
+      border: 3px dashed #9E2A2B;
+      transform: rotate(-3deg);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-glow {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans flex flex-col justify-between">
+
+  <!-- TOP HEADER / INVESTIGATION HUD -->
+  <header class="bg-gradient-to-r from-detective-leather via-detective-slate to-[#13161A] border-b border-amber-900/50 px-4 py-3 sticky top-0 z-40 shadow-xl">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl pin-shadow">
+          🕵️‍♂️
+        </div>
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-bold font-typewriter">Kasus Berita #5W1H-2026</span>
+          <h1 class="text-lg md:text-xl font-extrabold text-white tracking-wide font-serifNews">Detektif Berita: Misi 5W + 1H</h1>
+        </div>
+      </div>
+
+      <!-- Live Counters -->
+      <div class="flex items-center gap-3 md:gap-6 text-sm">
+        <!-- Timer -->
+        <div class="bg-black/40 border border-amber-950 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4 text-amber-400 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-width="2" stroke-linecap="round" d="M12 6v6l4 2"></path></svg>
+          <span class="text-xs text-stone-400 font-mono">WAKTU:</span>
+          <span id="timerText" class="font-mono font-bold text-amber-300">00:00</span>
+        </div>
+
+        <!-- Puzzle Progress -->
+        <div class="bg-black/40 border border-amber-950 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-xs text-stone-400">BUKTI:</span>
+          <span id="progressCounter" class="font-bold text-emerald-400">0 / 10</span>
+        </div>
+
+        <!-- Score -->
+        <div class="bg-black/40 border border-amber-950 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-xs text-stone-400">SKOR:</span>
+          <span id="scoreText" class="font-extrabold text-yellow-400">0</span>
+        </div>
+
+        <!-- Audio Toggle -->
+        <button id="soundToggleBtn" onclick="toggleMute()" class="p-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 transition" title="Suara Efek">
+          <svg id="soundIcon" class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT SPLIT VIEW -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-3 sm:p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+    
+    <!-- LEFT PANEL: NEWSPAPER DOSSIER (COL-5) -->
+    <section class="lg:col-span-5 flex flex-col h-[580px] lg:h-[720px] rounded-2xl overflow-hidden shadow-2xl border-4 border-[#2b2118]">
+      <!-- Newspaper Header Bar -->
+      <div class="bg-[#241a12] p-3 border-b border-amber-900/60 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-600 inline-block"></span>
+          <span class="text-xs uppercase font-typewriter text-amber-200/80 font-bold tracking-wider">Berkas Bukti Berita Utama</span>
+        </div>
+        <button onclick="clearHighlights()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-2 py-1 rounded transition border border-amber-800 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Reset Sorotan
+        </button>
+      </div>
+
+      <!-- Newspaper Paper Sheet -->
+      <div class="paper-texture text-detective-ink p-5 sm:p-6 overflow-y-auto custom-scroll flex-grow relative select-text">
+        <!-- Newspaper Header Title -->
+        <div class="border-b-2 border-stone-800 pb-3 mb-4 text-center">
+          <div class="text-[10px] tracking-widest font-mono uppercase text-stone-600">Harian Investigasi Sains & Teknologi • Edisi 26 Okt 2026</div>
+          <h2 class="font-serifNews font-black text-xl sm:text-2xl mt-1 text-stone-900 leading-snug">
+            Robot Pemilah Sampah Karya Siswa SMK 1 Nusantara Resmi Beroperasi di TPA Sejahtera
+          </h2>
+          <div class="flex justify-between items-center text-[11px] font-mono mt-2 text-stone-700 border-t border-dotted border-stone-400 pt-1">
+            <span>Liputan: Redaksi Surabaya</span>
+            <span>Rubrik: Inovasi Edukasi</span>
+          </div>
+        </div>
+
+        <!-- News Article Content -->
+        <div class="text-sm sm:text-[14.5px] leading-relaxed font-sans space-y-4 text-stone-900 text-justify">
+          <p>
+            <strong class="font-serifNews font-black text-stone-950 text-base">SURABAYA</strong> — 
+            <span id="news-who1" class="transition-colors duration-300 p-0.5 rounded">Tiga siswa jurusan Rekayasa Perangkat Lunak dari SMK 1 Nusantara</span> berhasil menciptakan 
+            <span id="news-what1" class="transition-colors duration-300 p-0.5 rounded">prototipe robot pemilah sampah otomatis berbasis kecerdasan buatan</span>. 
+            Robot yang diberi nama <strong class="font-semibold text-amber-950 font-mono">"PilahBot-X"</strong> tersebut resmi diuji coba langsung di 
+            <span id="news-where1" class="transition-colors duration-300 p-0.5 rounded">Tempat Pembuangan Akhir (TPA) Sejahtera, Surabaya</span>, pada 
+            <span id="news-when1" class="transition-colors duration-300 p-0.5 rounded">Senin pagi, 26 Oktober 2026</span>.
+          </p>
+
+          <p>
+            Inovasi ini dikembangkan lantaran 
+            <span id="news-why1" class="transition-colors duration-300 p-0.5 rounded">tumpukan sampah anorganik di kawasan perkotaan makin menggunung dan proses pemilahan manual oleh petugas dinilai lambat serta rentan menimbulkan risiko kesehatan</span>. 
+            Dengan hadirnya alat ini, efisiensi pemisahan limbah plastik dan logam di tempat pengolahan meningkat drastis.
+          </p>
+
+          <p>
+            Ketua tim inovator, 
+            <span id="news-who2" class="transition-colors duration-300 p-0.5 rounded font-bold underline decoration-amber-600">Arya Mahendra</span>, 
+            menjelaskan bahwa PilahBot-X beroperasi secara mandiri. 
+            <span id="news-how1" class="transition-colors duration-300 p-0.5 rounded">"Kamera sensor pada lengan robot akan memindai jenis material sampah yang melintas di ban berjalan, kemudian algoritma AI mengidentifikasi material tersebut dalam hitungan detik</span>. 
+            Setelah itu, 
+            <span id="news-how2" class="transition-colors duration-300 p-0.5 rounded">lengan mekanik menyedot atau menjepit sampah untuk dibuang ke wadah yang sesuai</span>," 
+            papar Arya saat ditemui di lokasi peresmian.
+          </p>
+
+          <p>
+            Kepala Dinas Lingkungan Hidup Kota Surabaya yang hadir secara langsung memberikan apresiasi tinggi dan 
+            <span id="news-what2" class="transition-colors duration-300 p-0.5 rounded font-medium">berencana menganggarkan dana khusus pada tahun ajaran baru guna memproduksi massal lima unit robot tambahan</span> 
+            yang rencananya akan dialokasikan untuk 
+            <span id="news-where2" class="transition-colors duration-300 p-0.5 rounded font-medium">TPS tingkat kecamatan</span>.
+          </p>
+        </div>
+
+        <!-- Clue Highlighter Legend -->
+        <div class="mt-6 pt-3 border-t-2 border-stone-800 text-[11px] text-stone-600 flex flex-wrap gap-2 items-center">
+          <span class="font-bold uppercase tracking-wider text-stone-800">Tips Detektif:</span>
+          <span>Klik tombol <em>"Beri Petunjuk"</em> di samping bila kamu membutuhkan sorotan kalimat dalam artikel.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: DETECTIVE PUZZLE INTERACTION ARENA (COL-7) -->
+    <section class="lg:col-span-7 flex flex-col space-y-4">
+      
+      <!-- PUZZLE BOARD SLOTS (10 PIECES PROGRESS) -->
+      <div class="bg-[#1b2129] border border-amber-900/40 rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-400 text-lg">🧩</span>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200">Papan Rekonstruksi Bukti (10 Keping Puzzle)</h3>
+          </div>
+          <span class="text-xs text-stone-400 font-mono" id="puzzleBoardLabel">0/10 Terpasang</span>
+        </div>
+
+        <!-- 10 Mini Puzzle Tiles Grid -->
+        <div class="grid grid-cols-5 sm:grid-cols-10 gap-2" id="puzzleBoardGrid">
+          <!-- 10 slots populated by JS -->
+        </div>
+      </div>
+
+      <!-- ACTIVE CASE CARD (QUESTION & ANSWER INTERACTION) -->
+      <div id="gamePlayArea" class="bg-[#1E252F] border-2 border-amber-900/60 rounded-2xl p-4 sm:p-6 shadow-2xl relative flex flex-col flex-grow justify-between transition-all">
+        
+        <div>
+          <!-- Top Question Metadata -->
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-700/80 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span id="levelBadge" class="px-2.5 py-1 text-xs font-black uppercase rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
+                SOAL 01 / 10
+              </span>
+              <span id="categoryBadge" class="px-2.5 py-1 text-xs font-black uppercase rounded bg-rose-950/70 text-rose-300 border border-rose-800 font-mono">
+                WHAT (APA)
+              </span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button id="hintBtn" onclick="useHint()" class="text-xs bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/40 flex items-center gap-1.5 transition">
+                <span>💡</span> Beri Petunjuk
+              </button>
+            </div>
+          </div>
+
+          <!-- Question Prompt -->
+          <div class="mb-5">
+            <p class="text-xs text-amber-400/90 font-mono uppercase mb-1">Misi Analisis Bukti:</p>
+            <h3 id="questionText" class="text-base sm:text-lg font-bold text-white leading-relaxed">
+              Memuat soal investigasi...
+            </h3>
+          </div>
+
+          <!-- Interactive Choices / Puzzle Pieces -->
+          <div id="optionsContainer" class="grid grid-cols-1 gap-2.5 sm:gap-3">
+            <!-- Dynamically populated buttons -->
+          </div>
+        </div>
+
+        <!-- Feedback & Explanation Box -->
+        <div id="feedbackContainer" class="mt-4 p-3.5 rounded-xl hidden border text-xs sm:text-sm leading-relaxed transition-all">
+          <div class="flex items-start gap-2.5">
+            <div id="feedbackIcon" class="text-xl">✅</div>
+            <div class="flex-grow">
+              <h4 id="feedbackTitle" class="font-bold text-white mb-0.5">Analisis Detektif Tepat!</h4>
+              <p id="feedbackText" class="text-stone-300"></p>
+            </div>
+            <button id="nextBtn" onclick="nextQuestion()" class="ml-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-lg shadow-lg hover:shadow-amber-500/30 transition transform active:scale-95 flex items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
+              Lanjut <span>➔</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COMPLETION SCREEN (CERTIFICATE & RESULT) -->
+      <div id="completionArea" class="hidden bg-[#1E252F] border-2 border-amber-500/60 rounded-2xl p-6 shadow-2xl flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-amber-500/20 border-2 border-amber-400 rounded-full flex items-center justify-center text-4xl mb-3 shadow-inner">
+          🏆
+        </div>
+        <span class="text-xs font-mono uppercase tracking-widest text-amber-400">Kasus Terpecahkan Sempurna</span>
+        <h2 class="text-2xl sm:text-3xl font-black font-serifNews text-white mt-1">Lencana Detektif Jurnalis</h2>
+        <p class="text-sm text-stone-300 max-w-md mt-1">
+          Selamat! Kamu berhasil merekonstruksi 10 keping puzzle informasi teks berita berdasarkan unsur <strong class="text-amber-300">5W + 1H</strong>.
+        </p>
+
+        <!-- Certificate Card -->
+        <div class="w-full max-w-md paper-texture text-detective-ink rounded-xl p-5 my-5 border-4 border-amber-900 shadow-xl relative text-left">
+          <div class="stamp-badge absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold text-rose-800 uppercase tracking-widest">
+            RESMI TERVERIFIKASI
+          </div>
+          <div class="text-[11px] font-mono text-stone-600 uppercase border-b border-stone-400 pb-1">SERTIFIKAT AKREDITASI REDAKSI</div>
+          <div class="mt-3">
+            <span class="text-xs text-stone-500 block">Diberikan Kepada Agen Detektif:</span>
+            <span class="text-lg font-serifNews font-black text-stone-900 tracking-wide">Penyelidik Berita Handal</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-4 text-xs font-mono bg-stone-200/80 p-2.5 rounded border border-stone-300">
+            <div>
+              <span class="text-stone-500 block">SKOR AKHIR</span>
+              <strong id="finalScore" class="text-base text-amber-900">0 Poin</strong>
+            </div>
+            <div>
+              <span class="text-stone-500 block">DURASI KASUS</span>
+              <strong id="finalTime" class="text-base text-stone-900">00:00</strong>
+            </div>
+            <div class="col-span-2 pt-1 border-t border-stone-300 text-stone-700">
+              Penguasaan: <span class="font-bold text-emerald-800">What, Who, Where, When, Why, How (100%)</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="restartGame()" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black rounded-xl shadow-xl transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Pecahkan Ulang Kasus
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-black/60 border-t border-stone-800 py-3 px-4 text-center text-xs text-stone-400 font-mono">
+    Modul Game Interaktif Bahasa Indonesia • Media Pembelajaran Konsep 5W + 1H Berbasis Berita Nyata
+  </footer>
+
+  <!-- JAVASCRIPT GAME LOGIC -->
+  <script>
+    /* ==========================================================
+       SYNTHESIZED SOUND EFFECTS (Web Audio API - No External Assets)
+       ========================================================== */
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + delay);
+        osc.stop(audioCtx.currentTime + delay + duration);
+      } catch (e) {
+        // Fallback for browsers with restricted autoplay
+      }
+    }
+
+    function playSuccessSound() {
+      playTone(523.25, 'triangle', 0.15, 0);     // C5
+      playTone(659.25, 'triangle', 0.18, 0.1);   // E5
+      playTone(783.99, 'triangle', 0.25, 0.2);   // G5
+      playTone(1046.50, 'triangle', 0.35, 0.3);  // C6
+    }
+
+    function playWrongSound() {
+      playTone(311.13, 'sawtooth', 0.18, 0);    // Eb4
+      playTone(293.66, 'sawtooth', 0.25, 0.12); // D4
+    }
+
+    function playClickSound() {
+      playTone(800, 'sine', 0.05, 0);
+    }
+
+    function toggleMute() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('soundIcon');
+      if (soundEnabled) {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/>';
+      } else {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>';
+      }
+    }
+
+    /* ==========================================================
+       GAME DATA: 10 PUZZLE CHALLENGES (5W + 1H)
+       ========================================================== */
+    const questions = [
+      {
+        id: 1,
+        category: "WHAT (APA)",
+        categoryColor: "bg-blue-900/60 text-blue-300 border-blue-600",
+        question: "Berdasarkan investigasi berita, peristiwa utama apa yang diberitakan?",
+        options: [
+          { text: "Pameran teknologi SMK se-Jawa Timur", correct: false },
+          { text: "Uji coba prototipe robot pemilah sampah otomatis berbasis AI di TPA Sejahtera", correct: true },
+          { text: "Pemogokan kerja para petugas pemilah sampah perkotaan", correct: false },
+          { text: "Pembangunan gedung bank sampah baru di Kota Surabaya", correct: false }
+        ],
+        highlightId: "news-what1",
+        explanation: "Unsur 'What' merujuk pada peristiwa pokok dalam berita: peluncuran dan uji coba prototipe robot pemilah sampah bertenaga AI di TPA Sejahtera.",
+        puzzleTileTitle: "1. Peristiwa (What)"
+      },
+      {
+        id: 2,
+        category: "WHO (SIAPA)",
+        categoryColor: "bg-emerald-900/60 text-emerald-300 border-emerald-600",
+        question: "Siapa pihak perancang yang berhasil menciptakan prototipe robot 'PilahBot-X'?",
+        options: [
+          { text: "Tiga mahasiswa tingkat akhir Teknik Elektro ITS Surabaya", correct: false },
+          { text: "Petugas kebersihan senior di TPA Sejahtera", correct: false },
+          { text: "Tiga siswa jurusan Rekayasa Perangkat Lunak dari SMK 1 Nusantara", correct: true },
+          { text: "Staf laboratorium robotika Dinas Kebersihan Kota", correct: false }
+        ],
+        highlightId: "news-who1",
+        explanation: "Unsur 'Who' menunjukkan subjek/aktor inovasi: tiga pelajar jurusan Rekayasa Perangkat Lunak dari SMK 1 Nusantara.",
+        puzzleTileTitle: "2. Pencipta (Who)"
+      },
+      {
+        id: 3,
+        category: "WHO (SIAPA)",
+        categoryColor: "bg-emerald-900/60 text-emerald-300 border-emerald-600",
+        question: "Siapakah nama ketua tim pelajar inovator yang memaparkan cara kerja robot tersebut?",
+        options: [
+          { text: "Arya Mahendra", correct: true },
+          { text: "Bima Satria", correct: false },
+          { text: "Rangga Pratama", correct: false },
+          { text: "Dimas Wicaksono", correct: false }
+        ],
+        highlightId: "news-who2",
+        explanation: "Unsur 'Who' yang mewakili juru bicara dan ketua tim inovator siswa secara spesifik adalah Arya Mahendra.",
+        puzzleTileTitle: "3. Ketua Tim (Who)"
+      },
+      {
+        id: 4,
+        category: "WHERE (DI MANA)",
+        categoryColor: "bg-amber-900/60 text-amber-300 border-amber-600",
+        question: "Di mana lokasi lapangan tempat uji coba resmi operasional robot tersebut dilakukan?",
+        options: [
+          { text: "Laboratorium Komputer SMK 1 Nusantara", correct: false },
+          { text: "Tempat Pembuangan Akhir (TPA) Sejahtera, Surabaya", correct: true },
+          { text: "Gedung Balai Kota Balai Pemuda Surabaya", correct: false },
+          { text: "Kawasan Industri Rungkut Surabaya", correct: false }
+        ],
+        highlightId: "news-where1",
+        explanation: "Unsur 'Where' menjelaskan tempat kejadian nyata, yaitu di Tempat Pembuangan Akhir (TPA) Sejahtera, Surabaya.",
+        puzzleTileTitle: "4. Lokasi Uji (Where)"
+      },
+      {
+        id: 5,
+        category: "WHEN (KAPAN)",
+        categoryColor: "bg-purple-900/60 text-purple-300 border-purple-600",
+        question: "Kapan waktu pasti pelaksanaan uji coba robot pemilah sampah tersebut berlangsung?",
+        options: [
+          { text: "Minggu malam, 25 Oktober 2026", correct: false },
+          { text: "Senin pagi, 26 Oktober 2026", correct: true },
+          { text: "Jumat sore, awal bulan November 2026", correct: false },
+          { text: "Saat libur kenaikan kelas tahun ajaran baru", correct: false }
+        ],
+        highlightId: "news-when1",
+        explanation: "Unsur 'When' mencakup waktu faktual peristiwa: Senin pagi, tanggal 26 Oktober 2026.",
+        puzzleTileTitle: "5. Waktu (When)"
+      },
+      {
+        id: 6,
+        category: "WHY (MENGAPA)",
+        categoryColor: "bg-rose-900/60 text-rose-300 border-rose-600",
+        question: "Mengapa tim siswa terdorong menciptakan robot pemilah sampah otomatis ini?",
+        options: [
+          { text: "Untuk memenangkan hadiah uang tunai pada pameran nasional", correct: false },
+          { text: "Karena tumpukan sampah menggunung serta pemilahan manual lambat dan berisiko bagi kesehatan", correct: true },
+          { text: "Karena TPA Sejahtera ditutup total oleh pemerintah setempat", correct: false },
+          { text: "Menggantikan seluruh tenaga kerja manusia di kawasan pabrik", correct: false }
+        ],
+        highlightId: "news-why1",
+        explanation: "Unsur 'Why' adalah motif/alasan: masalah tumpukan sampah anorganik kota serta bahaya kesehatan dan lambatnya pemilahan manual.",
+        puzzleTileTitle: "6. Alasan (Why)"
+      },
+      {
+        id: 7,
+        category: "HOW (BAGAIMANA - SENSOR)",
+        categoryColor: "bg-teal-900/60 text-teal-300 border-teal-600",
+        question: "Bagaimana cara kerja awal sistem sensor robot dalam mengenali jenis material sampah?",
+        options: [
+          { text: "Kamera sensor memindai material di ban berjalan dan algoritma AI mengidentifikasinya dalam hitungan detik", correct: true },
+          { text: "Membakar sedikit bagian sampah untuk membaca reaksi gas kimianya", correct: false },
+          { text: "Menimbang berat jenis sampah dengan timbangan bertekanan air", correct: false },
+          { text: "Petugas mengetik jenis sampah melalui remote kontrol nirkabel", correct: false }
+        ],
+        highlightId: "news-how1",
+        explanation: "Unsur 'How' tahap 1 menguraikan mekanisme teknologi identifikasi material lewat kamera sensor dan algoritma AI.",
+        puzzleTileTitle: "7. Deteksi AI (How)"
+      },
+      {
+        id: 8,
+        category: "HOW (BAGAIMANA - MEKANIK)",
+        categoryColor: "bg-teal-900/60 text-teal-300 border-teal-600",
+        question: "Bagaimana proses fisik yang dilakukan lengan mekanik robot saat memindahkan sampah?",
+        options: [
+          { text: "Menghancurkan sampah menjadi bubuk lalu ditiup angin", correct: false },
+          { text: "Menyedot atau menjepit sampah untuk dibuang ke wadah yang sesuai", correct: true },
+          { text: "Menggilas sampah memakai roda gerigi baja berputar", correct: false },
+          { text: "Mencelupkan sampah ke bak larutan asam penampung", correct: false }
+        ],
+        highlightId: "news-how2",
+        explanation: "Unsur 'How' tahap 2 menjelaskan aksi mekanis: menyedot (suction) atau menjepit sampah ke wadah pemilahan terpisah.",
+        puzzleTileTitle: "8. Aksi Lengan (How)"
+      },
+      {
+        id: 9,
+        category: "WHAT (APA - TINDAK LANJUT)",
+        categoryColor: "bg-blue-900/60 text-blue-300 border-blue-600",
+        question: "Apa rencana tindak lanjut yang akan diambil Kepala Dinas Lingkungan Hidup Surabaya?",
+        options: [
+          { text: "Menghentikan produksi robot karena memakan biaya listrik", correct: false },
+          { text: "Menganggarkan dana khusus pada tahun ajaran baru guna memproduksi massal lima unit tambahan", correct: true },
+          { text: "Membeli hak paten robot untuk dijual kembali ke luar negeri", correct: false },
+          { text: "Mewajibkan semua siswa SMK menjadi petugas sampah di TPA", correct: false }
+        ],
+        highlightId: "news-what2",
+        explanation: "Unsur 'What' berupa tindak lanjut kebijakan pemerintah kota: menyiapkan anggaran untuk produksi massal 5 unit robot tambahan.",
+        puzzleTileTitle: "9. Rencana (What)"
+      },
+      {
+        id: 10,
+        category: "WHERE (DI MANA - DISTRIBUSI)",
+        categoryColor: "bg-amber-900/60 text-amber-300 border-amber-600",
+        question: "Ke mana lima unit robot tambahan hasil produksi massal tersebut rencananya akan didistribusikan?",
+        options: [
+          { text: "Kantor wali kota Surabaya", correct: false },
+          { text: "Tempat Pembuangan Sampah (TPS) tingkat kecamatan", correct: true },
+          { text: "Kantin seluruh sekolah kejuruan", correct: false },
+          { text: "Mall dan pusat perbelanjaan swasta", correct: false }
+        ],
+        highlightId: "news-where2",
+        explanation: "Unsur 'Where' tujuan alokasi unit baru: dialokasikan ke TPS tingkat kecamatan di Surabaya.",
+        puzzleTileTitle: "10. Distribusi (Where)"
+      }
+    ];
+
+    /* ==========================================================
+       GAME STATE
+       ========================================================== */
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let solvedPuzzles = new Set();
+    let hasAnsweredCurrent = false;
+
+    /* ==========================================================
+       INITIALIZATION
+       ========================================================== */
+    window.onload = function() {
+      initPuzzleBoard();
+      loadQuestion(0);
+      startTimer();
+    };
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const minutes = Math.floor(timerSeconds / 60);
+        const seconds = timerSeconds % 60;
+        document.getElementById('timerText').innerText = 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function initPuzzleBoard() {
+      const grid = document.getElementById('puzzleBoardGrid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const slot = document.createElement('div');
+        slot.id = `puzzle-slot-${i}`;
+        slot.className = "aspect-square rounded-lg border-2 border-dashed border-stone-700 bg-stone-900/60 flex flex-col items-center justify-center p-1 text-center transition-all duration-300";
+        slot.innerHTML = `
+          <span class="text-xs text-stone-500 font-mono font-bold">#${i + 1}</span>
+          <span class="text-[9px] text-stone-600 line-clamp-1">KOSONG</span>
+        `;
+        grid.appendChild(slot);
+      }
+    }
+
+    /* ==========================================================
+       RENDER CURRENT QUESTION
+       ========================================================== */
+    function loadQuestion(index) {
+      hasAnsweredCurrent = false;
+      const q = questions[index];
+
+      // Update Question Badges & Prompts
+      document.getElementById('levelBadge').innerText = `SOAL ${String(index + 1).padStart(2, '0')} / 10`;
+      
+      const catBadge = document.getElementById('categoryBadge');
+      catBadge.innerText = q.category;
+      catBadge.className = `px-2.5 py-1 text-xs font-black uppercase rounded font-mono border ${q.categoryColor}`;
+
+      document.getElementById('questionText').innerText = q.question;
+
+      // Reset feedback box
+      const fbBox = document.getElementById('feedbackContainer');
+      fbBox.classList.add('hidden');
+
+      // Build Option Buttons
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      // Shuffle options copy
+      const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+      shuffledOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        const letter = String.fromCharCode(65 + idx);
+        btn.className = "w-full text-left p-3.5 sm:p-4 rounded-xl bg-stone-800/80 hover:bg-stone-700/90 border border-stone-700 text-stone-200 text-xs sm:text-sm font-medium transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-start gap-3 shadow-md group";
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded bg-stone-900 group-hover:bg-amber-500 group-hover:text-stone-950 text-stone-400 border border-stone-700 font-bold font-mono text-xs flex items-center justify-center flex-shrink-0 transition">
+            ${letter}
+          </span>
+          <span class="flex-grow pt-0.5">${opt.text}</span>
+        `;
+        btn.onclick = () => selectAnswer(btn, opt, q);
+        container.appendChild(btn);
+      });
+
+      // Clear previous article highlighting
+      clearHighlights();
+    }
+
+    /* ==========================================================
+       ANSWER LOGIC & PUZZLE PIECE UNLOCK
+       ========================================================== */
+    function selectAnswer(buttonElement, option, questionData) {
+      if (hasAnsweredCurrent) return;
+      hasAnsweredCurrent = true;
+
+      const buttons = document.getElementById('optionsContainer').querySelectorAll('button');
+      buttons.forEach(b => b.classList.add('pointer-events-none'));
+
+      const fbBox = document.getElementById('feedbackContainer');
+      const fbIcon = document.getElementById('feedbackIcon');
+      const fbTitle = document.getElementById('feedbackTitle');
+      const fbText = document.getElementById('feedbackText');
+      const nextBtn = document.getElementById('nextBtn');
+
+      if (option.correct) {
+        // CORRECT ANSWER
+        playSuccessSound();
+        buttonElement.classList.remove('bg-stone-800/80', 'border-stone-700');
+        buttonElement.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-200', 'ring-2', 'ring-emerald-500');
+
+        score += 100;
+        document.getElementById('scoreText').innerText = score;
+
+        // Unlock puzzle tile
+        unlockPuzzlePiece(questionData.id - 1, questionData.puzzleTileTitle);
+
+        // Show educational feedback
+        fbBox.className = "mt-4 p-3.5 rounded-xl border border-emerald-600 bg-emerald-950/50 text-emerald-200 flex items-start gap-2.5 transition-all";
+        fbIcon.innerText = "🧩";
+        fbTitle.innerText = "Keping Puzzle Ditemukan! (Jawaban Benar)";
+        fbText.innerText = questionData.explanation;
+
+        // Automatically highlight corresponding news sentence
+        highlightArticle(questionData.highlightId);
+
+      } else {
+        // WRONG ANSWER
+        playWrongSound();
+        buttonElement.classList.remove('bg-stone-800/80', 'border-stone-700');
+        buttonElement.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-200', 'ring-2', 'ring-rose-500');
+
+        // Reveal correct button
+        buttons.forEach(b => {
+          if (b.innerText.includes(questionData.options.find(o => o.correct).text)) {
+            b.classList.remove('bg-stone-800/80');
+            b.classList.add('bg-emerald-950/50', 'border-emerald-600', 'text-emerald-300');
+          }
+        });
+
+        // Show feedback with penalty
+        score = Math.max(0, score - 20);
+        document.getElementById('scoreText').innerText = score;
+
+        fbBox.className = "mt-4 p-3.5 rounded-xl border border-rose-800 bg-rose-950/50 text-rose-200 flex items-start gap-2.5 transition-all";
+        fbIcon.innerText = "⚠️";
+        fbTitle.innerText = "Bukti Belum Sesuai (Kurang Tepat)";
+        fbText.innerText = questionData.explanation;
+
+        // Still unlock puzzle tile as grey/resolved to keep progress moving
+        unlockPuzzlePiece(questionData.id - 1, questionData.puzzleTileTitle, false);
+      }
+
+      fbBox.classList.remove('hidden');
+
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.innerHTML = `Selesai Kasus <span>★</span>`;
+      }
+    }
+
+    function unlockPuzzlePiece(index, title, isPerfect = true) {
+      if (solvedPuzzles.has(index)) return;
+      solvedPuzzles.add(index);
+
+      const slot = document.getElementById(`puzzle-slot-${index}`);
+      slot.classList.remove('border-dashed', 'border-stone-700', 'bg-stone-900/60');
+      
+      if (isPerfect) {
+        slot.classList.add('border-solid', 'border-amber-400', 'bg-amber-600/30', 'text-amber-200', 'scale-105', 'shadow-lg');
+        slot.innerHTML = `
+          <span class="text-sm">🧩</span>
+          <span class="text-[9px] font-bold text-amber-200 font-mono text-center leading-tight mt-0.5">${title}</span>
+        `;
+      } else {
+        slot.classList.add('border-solid', 'border-stone-500', 'bg-stone-800', 'text-stone-300');
+        slot.innerHTML = `
+          <span class="text-sm">🔍</span>
+          <span class="text-[9px] font-bold text-stone-300 font-mono text-center leading-tight mt-0.5">${title}</span>
+        `;
+      }
+
+      const count = solvedPuzzles.size;
+      document.getElementById('progressCounter').innerText = `${count} / 10`;
+      document.getElementById('puzzleBoardLabel').innerText = `${count}/10 Terpasang`;
+    }
+
+    /* ==========================================================
+       NEXT STEP & HIGHLIGHT HELPERS
+       ========================================================== */
+    function nextQuestion() {
+      playClickSound();
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion(currentQuestionIndex);
+      } else {
+        finishGame();
+      }
+    }
+
+    function useHint() {
+      playTone(600, 'sine', 0.1);
+      const q = questions[currentQuestionIndex];
+      highlightArticle(q.highlightId);
+      
+      // Flash hint feedback
+      const fbBox = document.getElementById('feedbackContainer');
+      const fbIcon = document.getElementById('feedbackIcon');
+      const fbTitle = document.getElementById('feedbackTitle');
+      const fbText = document.getElementById('feedbackText');
+
+      if (fbBox.classList.contains('hidden')) {
+        fbBox.className = "mt-4 p-3.5 rounded-xl border border-amber-600 bg-amber-950/40 text-amber-200 flex items-start gap-2.5 transition-all";
+        fbIcon.innerText = "💡";
+        fbTitle.innerText = "Petunjuk Redaksi Diberikan:";
+        fbText.innerText = "Perhatikan teks yang baru saja disorot kuning di berkas koran sebelah kiri!";
+        fbBox.classList.remove('hidden');
+      }
+    }
+
+    function highlightArticle(elementId) {
+      clearHighlights();
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.classList.add('bg-amber-300', 'text-stone-950', 'font-bold', 'px-1', 'shadow-sm');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function clearHighlights() {
+      const highlights = document.querySelectorAll('[id^="news-"]');
+      highlights.forEach(el => {
+        el.classList.remove('bg-amber-300', 'text-stone-950', 'font-bold', 'px-1', 'shadow-sm');
+      });
+    }
+
+    /* ==========================================================
+       FINISH & RESTART GAME
+       ========================================================== */
+    function finishGame() {
+      clearInterval(timerInterval);
+      playSuccessSound();
+
+      document.getElementById('gamePlayArea').classList.add('hidden');
+      const compArea = document.getElementById('completionArea');
+      compArea.classList.remove('hidden');
+      compArea.classList.add('flex');
+
+      document.getElementById('finalScore').innerText = `${score} Poin`;
+      document.getElementById('finalTime').innerText = document.getElementById('timerText').innerText;
+    }
+
+    function restartGame() {
+      playClickSound();
+      currentQuestionIndex = 0;
+      score = 0;
+      timerSeconds = 0;
+      solvedPuzzles.clear();
+      
+      document.getElementById('scoreText').innerText = '0';
+      document.getElementById('progressCounter').innerText = '0 / 10';
+      document.getElementById('puzzleBoardLabel').innerText = '0/10 Terpasang';
+      
+      document.getElementById('completionArea').classList.add('hidden');
+      document.getElementById('completionArea').classList.remove('flex');
+      document.getElementById('gamePlayArea').classList.remove('hidden');
+
+      initPuzzleBoard();
+      loadQuestion(0);
+      startTimer();
+    }
+  </script>
+</body>
+</html>
